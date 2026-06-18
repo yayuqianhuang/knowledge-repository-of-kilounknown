@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人优势配置测试 (PSI-SDI)</title>
+    <!-- 引入外部样式表 -->
+    <link rel="stylesheet" href="style.css">
+    <!-- 引入图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function forceSelect(questionId, value) {
+            const input = document.querySelector(`input[name="${questionId}"][value="${value}"]`);
+            if (input) input.checked = true;
+        }
+    </script>
+</head>
+<body>
+    <div class="container"
+        <!-- 头部区域 -->
+        <header>
+            <h1>🌟 个人优势配置测试</h1>
+            <p class="subtitle">基于 PSI 量表 & SDI 优势词汇体系</p>
+        </header>
+
+        <!-- 测试主区域 -->
+        <div id="test-section" class="card">
+            <form id="psi-form">
+                <!-- 题目将由 JavaScript 动态注入 -->
+            </form>
+            <div class="btn-center">
+                <button type="button" class="btn" onclick="calculateResults()">生成优势报告</button>
+            </div>
+        </div>
+
+        <!-- 结果展示区域 (默认隐藏) -->
+        <div id="results-section" class="card">
+            <h2>📊 你的优势画像</h2>
+            
+            <!-- 雷达图容器 -->
+            <div class="chart-container">
+                <canvas id="radarChart"></canvas>
+            </div>
+
+            <!-- 分数网格 -->
+            <div class="score-grid" id="score-grid"></div>
+
+            <!-- 词汇云 -->
+            <div>
+                <h3>🏷️ 核心优势词汇云</h3>
+                <p>* 词汇大小与颜色深度代表该维度得分强度</p>
+                <div class="cloud-container" id="word-cloud"></div>
+            </div>
+
+            <!-- 重新测试按钮 -->
+            <div class="btn-center">
+                <button class="btn" onclick="location.reload()">重新测试</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入外部脚本 -->
+    <script src="script.js"></script>
+</body>
+</html>
