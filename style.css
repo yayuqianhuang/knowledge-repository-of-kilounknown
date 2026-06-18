@@ -1,0 +1,299 @@
+/* ========================================
+   1. 基础配置与变量
+   ======================================== */
+/* 定义CSS自定义属性（变量），方便全局统一修改颜色主题 */
+:root {
+    --primary-color: #4f46e5;
+    --primary-hover: #4f46e5;
+    --bg-color: #f9fafb;
+    --card-bg: #ffffff;
+    --text-main: #1f2937;
+    --text-sub: #6b7280;
+    --error-color: #ef4444;
+    --selected-color: #08dcc7; /* 添加这一行：青绿色 */
+}
+
+/* 通配符重置：所有元素使用 border-box 盒模型，并去除默认内外边距 */
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
+
+/* 设置 body 元素的基础样式 */
+body { 
+    font-family: 'Segoe UI', system-ui, sans-serif; /* 优先使用系统字体 */
+    background: var(--bg-color); /* 应用页面背景色 */
+    color: var(--text-main);     /* 应用主文本颜色 */
+    line-height: 1.6;            /* 设置行高，增强可读性 */
+    padding: 20px;               /* 页面四周留白 */
+}
+
+/* 页面内容容器：限制最大宽度并水平居中 */
+.container { 
+    max-width: 800px; 
+    margin: 0 auto; 
+}
+
+/* ========================================
+   2. 布局与卡片
+   ======================================== */
+
+/* 头部区域样式 */
+header { 
+    text-align: center;        /* 文字居中 */
+    margin-bottom: 40px;       /* 下方外边距 */
+    padding: 40px 0;           /* 上下内边距 */
+}
+
+/* 主标题样式 */
+h1 { 
+    font-size: 2rem;           /* 字体大小 */
+    color: var(--primary-color); /* 使用主色调 */
+    margin-bottom: 10px;       /* 下方外边距 */
+}
+
+/* 副标题样式 */
+.subtitle { 
+    color: var(--text-sub);    /* 使用次要文本色 */
+    font-size: 1.1rem;         /* 字体大小 */
+}
+
+/* 卡片通用样式：用于包裹测试区和结果区 */
+.card { 
+    background: var(--card-bg); /* 白色背景 */
+    border-radius: 12px;       /* 圆角 */
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); /* 微弱阴影，增加层次感 */
+    padding: 30px;             /* 内边距 */
+    margin-bottom: 30px;       /* 下方外边距 */
+}
+
+/* ========================================
+   3. 表单交互样式
+   ======================================== */
+
+/* 单个题目容器的样式 */
+.question-item { 
+    margin-bottom: 25px; 
+    padding-bottom: 25px; 
+    border-bottom: 1px solid #f3f4f6; /* 题目之间用浅色线条分隔 */
+    transition: all 0.3s;            /* 添加过渡动画效果 */
+}
+
+/* 最后一个题目不需要下边框和底部间距 */
+.question-item:last-child { 
+    border-bottom: none; 
+    margin-bottom: 0; 
+    padding-bottom: 0; 
+}
+
+/* 题目文本样式 */
+.q-text { 
+    font-weight: 600;          /* 加粗 */
+    margin-bottom: 12px; 
+    display: block; 
+}
+
+/* 选项容器：使用 Flex 布局排列按钮 */
+.options { 
+    display: flex; 
+    gap: 10px;                 /* 按钮之间的间隙 */
+    flex-wrap: wrap;           /* 允许换行 */
+}
+
+/* 选项按钮样式（模拟的单选按钮） */
+.option-label { 
+    flex: 1;                   /* 弹性伸缩，平均分配空间 */
+    min-width: 80px;           /* 最小宽度 */
+    padding: 12px 5px;         /* 内边距 */
+    text-align: center;        /* 文字居中 */
+    border: 2px solid #e5e7eb; /* 浅灰色边框 */
+    border-radius: 8px;        /* 圆角 */
+    cursor: pointer;           /* 鼠标悬停显示手型 */
+    transition: all 0.2s ease; /* 平滑过渡效果 */
+    font-size: 0.9rem;         /* 字体大小 */
+    user-select: none;         /* 防止用户双击选中文字 */
+}
+
+/* 按钮悬停效果 */
+.option-label:hover { 
+    border-color: var(--primary-color); /* 边框变为主色 */
+    background: #020b29;                 /* 背景变为深蓝色（注：此处覆盖了变量，硬编码为深蓝） */
+}
+
+/* 隐藏浏览器默认的 radio 按钮原生样式 */
+input[type="radio"] { 
+    display: none; 
+}
+
+/* ========================================
+   选中状态的高亮样式 (由 JS 动态添加)
+   ======================================== */
+
+/* 
+ * 【修改过程说明】：
+ * 1. 原始代码使用了 `input[type="radio"]:checked + .optionNewLabel`，存在两个致命问题：
+ *    - 类名拼写错误：`.optionNewLabel` 与 HTML 中的 `.option-label` 不匹配。
+ *    - 依赖 DOM 结构：`+` 相邻兄弟选择器要求 input 和 label 必须是紧挨着的兄弟节点。
+ * 2. 适配 JS 逻辑：由于我们在 JS 中使用了 `radio.parentNode` 来查找 label，
+ *    这意味着 label 是 input 的父元素（包含关系）。
+ *    因此，我们无法再使用 CSS 伪类 `:checked` 来联动样式，
+ *    必须完全依赖 JS 动态添加的 `.selected` 类来控制高亮。
+ * 3. 颜色变量化：将硬编码的颜色替换为 CSS 变量 `var(--selected-color)`，
+ *    方便在 `:root` 中统一修改主题色。
+ */
+
+/* 当 JS 给 label 添加了 `selected` 类时，触发以下高亮样式 */
+.option-label.selected { 
+    background: var(--selected-color); /* 背景色：使用全局定义的选中色变量 */
+    color: #ffffff;                    /* 文本色：强制使用白色，确保在深色背景下的对比度和可读性 */
+    border-color: var(--selected-color); /* 边框色：与背景色保持一致，形成完整的色块效果 */
+    
+    /* 交互反馈：选中时微微放大，产生“浮出”的立体感 */
+    transform: scale(1.05);
+    
+    /* 阴影效果：添加与主色调同色系的微弱阴影，增强选中状态的层次感 */
+    box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+}
+
+/* 错误状态提示 (未答题) */
+/* 当题目项包含 error 类时，其下的所有选项按钮边框变红 */
+.question-item.error .option-label { 
+    border-color: var(--error-color); 
+}
+
+/* 错误信息文本样式 */
+.error-msg { 
+    color: var(--error-color); 
+    font-size: 0.85rem; 
+    margin-top: 8px; 
+    display: none; /* 默认隐藏 */
+}
+
+/* 当题目项包含 error 类时，显示错误信息 */
+.question-item.error .error-msg { 
+    display: block; 
+}
+
+/* ========================================
+   4. 按钮与结果展示
+   ======================================== */
+
+/* 通用按钮样式 */
+.btn { 
+    display: inline-block; 
+    padding: 15px 40px; 
+    background: var(--primary-color); 
+    color: white; 
+    border: none; 
+    border-radius: 8px; 
+    font-size: 1.1rem; 
+    cursor: pointer; 
+    transition: transform 0.1s; /* 点击时的缩放过渡 */
+}
+
+/* 按钮悬停效果：背景变深 */
+.btn:hover { 
+    background: var(--primary-hover); 
+}
+
+/* 按钮激活（按下）效果：轻微缩小 */
+.btn:active { 
+    transform: scale(0.98); 
+}
+
+/* 按钮居中容器 */
+.btn-center { 
+    text-align: center; 
+    margin-top: 30px; 
+}
+
+/* 结果区域：默认隐藏，通过 JS 控制显示 */
+#results-section { 
+    display: none; 
+    animation: fadeIn 0.5s ease; /* 淡入动画 */
+}
+
+/* 淡入动画关键帧定义 */
+@keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(10px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+
+/* 图表容器：固定高度，居中对齐 */
+.chart-container { 
+    position: relative; 
+    height: 350px; 
+    margin: 20px auto; 
+    max-width: 500px; 
+}
+
+/* 词汇云容器：使用 Flex 布局 */
+.cloud-container { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 10px; 
+    justify-content: center; 
+    margin-top: 20px; 
+    padding: 20px; 
+    background: #f8fafc; 
+    border-radius: 8px; 
+}
+
+/* 词汇云标签基础样式 */
+.tag { 
+    padding: 6px 14px; 
+    border-radius: 20px; 
+    font-weight: 500; 
+    transition: all 0.3s; 
+}
+
+/* 高分词汇：背景为主色，白色文字，稍微放大 */
+.tag-high { 
+    background: var(--primary-color); 
+    color: white; 
+    font-size: 1.1rem; 
+    transform: scale(1.1); 
+}
+
+/* 中分词汇：浅蓝色背景，深蓝色文字 */
+.tag-mid { 
+    background: #e0e7ff; 
+    color: #3730a3; 
+}
+
+/* 低分词汇：浅灰色背景，文字颜色较淡，尺寸较小 */
+.tag-low { 
+    background: #f3f4f6; 
+    color: #9ca3af; 
+    font-size: 0.85rem; 
+}
+
+/* 分数网格布局：响应式网格，每列最小140px */
+.score-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+    gap: 15px; 
+    margin-top: 20px; 
+}
+
+/* 单个分数展示框 */
+.score-box { 
+    background: #f9fafb; 
+    padding: 15px; 
+    border-radius: 8px; 
+    text-align: center; 
+}
+
+/* 分数值样式 */
+.score-val { 
+    font-size: 1.5rem; 
+    font-weight: 700; 
+    color: var(--primary-color); 
+}
+
+/* 分数标签（维度名称）样式 */
+.score-label { 
+    font-size: 0.85rem; 
+    color: var(--text-sub); 
+}
